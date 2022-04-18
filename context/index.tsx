@@ -1,7 +1,15 @@
 import * as React from 'react'
 
 import { ChakraProvider } from '@chakra-ui/react'
-import { FirebaseAppProvider } from 'reactfire'
+import {
+  FirebaseAppProvider,
+  FirestoreProvider,
+  useFirebaseApp,
+  AuthProvider,
+} from 'reactfire'
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
+
 import theme from 'theme'
 
 const firebaseConfig = {
@@ -14,12 +22,28 @@ const firebaseConfig = {
   measurementId: 'G-79LPC7HWSJ',
 }
 
+function OtherFirebaseProviders({ children }: { children: React.ReactChild }) {
+  const app = useFirebaseApp()
+
+  const firestore = getFirestore(app)
+
+  const auth = getAuth(app)
+
+  return (
+    <FirestoreProvider sdk={firestore}>
+      <AuthProvider sdk={auth}>{children}</AuthProvider>
+    </FirestoreProvider>
+  )
+}
+
 const AppProviders = ({ children }: { children: React.ReactChild }) => {
   return (
     <FirebaseAppProvider firebaseConfig={firebaseConfig}>
-      <ChakraProvider resetCSS theme={theme}>
-        {children}
-      </ChakraProvider>
+      <OtherFirebaseProviders>
+        <ChakraProvider resetCSS theme={theme}>
+          {children}
+        </ChakraProvider>
+      </OtherFirebaseProviders>
     </FirebaseAppProvider>
   )
 }

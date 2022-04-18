@@ -1,34 +1,21 @@
 import styles from '../styles/Home.module.css'
 import 'firebase/auth'
 // import firebaseui from 'firebaseui'
-import { doc, getFirestore } from 'firebase/firestore'
 import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
 } from 'firebase/auth'
+import { useFirebaseApp, useSigninCheck } from 'reactfire'
 import {
-  FirestoreProvider,
-  useFirestoreDocData,
-  useFirestore,
-  useFirebaseApp,
-  AuthProvider,
-  useSigninCheck,
-} from 'reactfire'
-import { Button } from '@chakra-ui/react'
-
-const BurritoTaste = () => {
-  const burritoRef = doc(useFirestore(), 'tryreactfire', 'burrito')
-
-  const { status, data } = useFirestoreDocData(burritoRef)
-
-  if (status === 'loading') {
-    return <p>fetching burrito...</p>
-  }
-
-  return <p>the burrito is {data.yummy ? 'good' : 'bad'}</p>
-}
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+} from '@chakra-ui/react'
 
 function Logout() {
   const app = useFirebaseApp()
@@ -71,23 +58,36 @@ function Login() {
 function SignInAndOutButton() {
   const { status: authStatus, data: authData } = useSigninCheck()
 
-  return <>{authData.signedIn ? <Logout /> : <Login />}</>
+  return <>{authData?.signedIn ? <Logout /> : <Login />}</>
+}
+
+function AuthenticatedApp() {
+  return (
+    <Flex direction="column">
+      <FormControl>
+        <FormLabel htmlFor="name">Name</FormLabel>
+        <Input placeholder="name" type="text" id="name" />
+      </FormControl>
+    </Flex>
+  )
+}
+
+function LandingScreen() {
+  return (
+    <Flex direction="column" align="center">
+      <Heading as="h1">Wecome to Picker for Students!</Heading>
+    </Flex>
+  )
 }
 
 function Home() {
-  const app = useFirebaseApp()
-
-  const firestore = getFirestore(app)
-
-  const auth = getAuth(app)
+  const { data } = useSigninCheck()
 
   return (
-    <FirestoreProvider sdk={firestore}>
-      <AuthProvider sdk={auth}>
-        <SignInAndOutButton />
-        <BurritoTaste />
-      </AuthProvider>
-    </FirestoreProvider>
+    <>
+      <SignInAndOutButton />
+      {data?.signedIn === true ? <AuthenticatedApp /> : <LandingScreen />}
+    </>
   )
 }
 
