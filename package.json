@@ -16,7 +16,6 @@
   "dependencies": {
     "@chakra-ui/react": "^1.8.8",
     "firebase": "^9.6.11",
-    "firebaseui": "^6.0.1",
     "next": "12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0",
