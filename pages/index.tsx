@@ -1,4 +1,3 @@
-import styles from '../styles/Home.module.css'
 import 'firebase/auth'
 // import firebaseui from 'firebaseui'
 import {
@@ -7,7 +6,7 @@ import {
   signInWithPopup,
   signOut,
 } from 'firebase/auth'
-import { useFirebaseApp, useSigninCheck } from 'reactfire'
+import { useFirebaseApp, useFirestore, useSigninCheck } from 'reactfire'
 import {
   Button,
   Flex,
@@ -16,6 +15,7 @@ import {
   Heading,
   Input,
 } from '@chakra-ui/react'
+import { doc, setDoc } from 'firebase/firestore'
 
 function Logout() {
   const app = useFirebaseApp()
@@ -40,13 +40,22 @@ function Login() {
 
   const provider = new GoogleAuthProvider()
 
+  const firestore = useFirestore()
+
   async function signIn() {
     try {
       const result = await signInWithPopup(auth, provider)
-      const credential = GoogleAuthProvider.credentialFromResult(result)
-      const token = credential?.accessToken
+      // const credential = GoogleAuthProvider.credentialFromResult(result)
+      // const token = credential?.accessToken
       const user = result.user
-      console.log(token, user)
+
+      await setDoc(doc(firestore, 'students', user.uid), {
+        name: user.displayName,
+        email: user.email,
+        photoUrl: user.photoURL,
+      })
+
+      // console.log(token, user)
     } catch (err) {
       console.log(err)
     }
