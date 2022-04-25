@@ -16,6 +16,7 @@ import {
   Input,
 } from '@chakra-ui/react'
 import { doc, setDoc } from 'firebase/firestore'
+import GoogleButton from 'react-google-button'
 
 function Logout() {
   const app = useFirebaseApp()
@@ -61,7 +62,11 @@ function Login() {
     }
   }
 
-  return <Button onClick={signIn}>Sign In</Button>
+  return (
+    <GoogleButton type="light" onClick={signIn}>
+      Sign In
+    </GoogleButton>
+  )
 }
 
 function SignInAndOutButton() {
