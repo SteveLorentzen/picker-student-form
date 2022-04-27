@@ -15,8 +15,22 @@ import {
   Heading,
   Input,
 } from '@chakra-ui/react'
+import { useForm, SubmitHandler, FieldValues } from 'react-hook-form'
 import { doc, setDoc } from 'firebase/firestore'
 import GoogleButton from 'react-google-button'
+import { ReactChild } from 'react'
+
+export const studentFactInputs = [
+  'Favorite Movie',
+  'Favorite Food',
+  'Favorite TV Show',
+  'Best Vacation',
+  'Cutest Pet',
+  'Signature Catch Phrase',
+  'Favorite Ice Cream',
+  'Favorite Book',
+  'Favorite Character',
+]
 
 function Logout() {
   const app = useFirebaseApp()
@@ -75,13 +89,85 @@ function SignInAndOutButton() {
   return <>{authData?.signedIn ? <Logout /> : <Login />}</>
 }
 
-function AuthenticatedApp() {
+function StyledFormControl({
+  children,
+  ...props
+}: {
+  children: ReactChild | ReactChild[]
+}) {
   return (
-    <Flex direction="column">
-      <FormControl>
-        <FormLabel htmlFor="name">Name</FormLabel>
-        <Input placeholder="name" type="text" id="name" />
-      </FormControl>
+    <FormControl marginBottom="2rem" w="100%" {...props}>
+      {children}
+    </FormControl>
+  )
+}
+
+function AuthenticatedApp() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm()
+
+  const onSubmit: SubmitHandler<FieldValues> = data => console.log(data)
+
+  return (
+    <Flex
+      direction="column"
+      maxW="80rem"
+      w="100%"
+      align="center"
+      marginX="auto"
+    >
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <StyledFormControl>
+          <FormLabel htmlFor="name">Name</FormLabel>
+          <Input
+            {...register('name', {
+              required: true,
+              minLength: {
+                value: 4,
+                message: 'Please enter a name with at least 4 characters',
+              },
+            })}
+            placeholder="name"
+            type="text"
+            id="name"
+            autoComplete="off"
+          />
+        </StyledFormControl>
+
+        {errors.name?.type === 'required' && <p>Name is required</p>}
+        {errors.name?.type === 'minLength' && <p>{errors.name?.message}</p>}
+
+        <StyledFormControl>
+          <FormLabel htmlFor="profile-picture">Profile Picture</FormLabel>
+          <Input
+            {...register('profile-picture', { required: true })}
+            placeholder="profile-picture"
+            type="file"
+            id="profile-picture"
+            autoComplete="off"
+          />
+        </StyledFormControl>
+        {studentFactInputs.map(studentFactInput => {
+          return (
+            <StyledFormControl key={studentFactInput}>
+              <FormLabel htmlFor={studentFactInput}>
+                {studentFactInput}
+              </FormLabel>
+              <Input
+                {...register(studentFactInput)}
+                placeholder={studentFactInput}
+                type="text"
+                id={studentFactInput}
+                autoComplete="off"
+              />
+            </StyledFormControl>
+          )
+        })}
+        <Button type="submit">Submit</Button>
+      </form>
     </Flex>
   )
 }
