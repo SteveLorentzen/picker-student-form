@@ -6,7 +6,12 @@ import {
   signInWithPopup,
   signOut,
 } from 'firebase/auth'
-import { useFirebaseApp, useFirestore, useSigninCheck } from 'reactfire'
+import {
+  useFirebaseApp,
+  useFirestore,
+  useSigninCheck,
+  useUser,
+} from 'reactfire'
 import {
   Button,
   Flex,
@@ -109,7 +114,35 @@ function AuthenticatedApp() {
     formState: { errors },
   } = useForm()
 
-  const onSubmit: SubmitHandler<FieldValues> = data => console.log(data)
+  const { data: userData } = useUser()
+
+  let userId = ''
+  if (typeof userData?.uid === 'string') {
+    userId = userData.uid
+  }
+
+  const studentRef = doc(useFirestore(), 'students', userId)
+
+  const onSubmit: SubmitHandler<FieldValues> = data => {
+    setDoc(
+      studentRef,
+      {
+        profile: {
+          name: data.name,
+          'Favorite Movie': data['Favorite Movie'] || '',
+          'Favorite Food': data['Favorite Food'] || '',
+          'Favorite TV Show': data['Favorite TV Show'] || '',
+          'Best Vacation': data['Best Vacation'] || '',
+          'Cutest Pet': data['Cutest Pet'] || '',
+          'Signature Catch Phrase': data['Signature Catch Phrase'] || '',
+          'Favorite Ice Cream': data['Favorite Ice Cream'] || '',
+          'Favorite Book': data['Favorite Book'] || '',
+          'Favorite Character': data['Favorite Character'] || '',
+        },
+      },
+      { merge: true },
+    )
+  }
 
   return (
     <Flex
